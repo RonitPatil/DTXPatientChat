@@ -51,6 +51,17 @@ pip install -r requirements.txt
 ```bash
 python manage.py runserver
 ```
+## Project Description
+
+**DTXPatientChat** is a Django-based healthcare chatbot system built specifically to serve a single patient. The chatbot is designed to assist the patient in managing their healthcare needs by leveraging two distinct agents:
+
+### Appointment Intent Detection Agent
+This agent monitors patient interactions to detect if the user is requesting to schedule, reschedule, or cancel an appointment. If an appointment request is identified, the system proceeds to handle the scheduling accordingly. If no appointment intent is detected, the conversation is passed to the second agent.
+
+### Medical Agent
+If the user is not asking about appointments, this agent steps in to handle general healthcare queries. It provides information related to the patient's health conditions, medications, and offers appropriate feedback. Additionally, every 7 messages, the system generates a summary of the conversation to maintain contextual awareness, ensuring that the chatbot retains key details from prior interactions.
+
+The bot is highly specialized, answering only healthcare-related questions and avoiding any irrelevant topics. It also offers personalized criticism on dietary habits based on the patient's medical conditions, making the conversation highly relevant and tailored to the patient's health.
 
 
 
