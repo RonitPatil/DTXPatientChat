@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Bot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        #chat-box {
+            flex-grow: 1;
+            overflow: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+            border-top: 1px solid #ccc;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 10px 10px 20px 10px;
+            border-radius: 10px;
+            color: #333;
+            max-width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            background-color: #fefefe;
+            position: relative;
+        }
+        .time {
+            font-size: 0.7em;
+            color: #666;
+            display: block;
+            opacity: 0.6;
+        }
+        .user {
+            align-self: flex-end;
+            background-color: #d0f8ff;
+        }
+        .bot {
+            align-self: flex-start;
+            background-color: #fefefe;
+        }
+        form {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var chatBox = document.getElementById('chat-box');
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const form = document.querySelector('form');
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                const messageInput = document.querySelector('input[name="message"]');
+                const userMessage = messageInput.value.trim();
+                if (!userMessage) return;
+
+                addMessageToChat('user', userMessage);
+
+                messageInput.value = '';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'  
+                        },
+                        body: new URLSearchParams({ 'message': userMessage })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();  
+                        const botMessage = data.bot_message;
+                        addMessageToChat('bot', botMessage);
+                    } else {
+                        console.error('Failed to get a response from the server.');
+                    }
+                } catch (error) {
+                    console.error('Error during fetch:', error);
+                }
+            });
+
+            hideEmptyAppointmentRequests();
+
+            function hideEmptyAppointmentRequests() {
+                const appointmentRequestsContainer = document.getElementById('appointmentRequestsContainer');
+                const listItems = appointmentRequestsContainer.querySelectorAll('li');
+                if (listItems.length === 0) {
+                    appointmentRequestsContainer.style.display = 'none';
+                }
+            }
+
+            function addMessageToChat(sender, message) {
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+
+            const textContainer = document.createElement('div');
+            textContainer.classList.add('text-container');
+            textContainer.textContent = message;
+
+            const timeContainer = document.createElement('div');
+            timeContainer.classList.add('time-container');
+            const timeSpan = document.createElement('span');
+            timeSpan.classList.add('time');
+            timeSpan.textContent = new Date().toLocaleString();
+
+            timeContainer.appendChild(timeSpan);
+            messageDiv.appendChild(textContainer);
+            messageDiv.appendChild(timeContainer);
+
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (message.includes("I will convey your request")) {
+                window.location.reload(true); 
+            }
+            }
+   
+    });
+        window.confirmAppointment = function(requestId) {
+            alert("Appointment confirmed.");
+            var requestItem = document.getElementById(requestId);
+            requestItem.parentNode.removeChild(requestItem);
+                };
+
+        window.cancelAppointment = function(requestId) {
+            alert("Appointment cancelled.");
+            var requestItem = document.getElementById(requestId);
+            requestItem.parentNode.removeChild(requestItem);
+            };
+        
+    </script>
+</head>
+<body>
+    <h1>Welcome, {{ patient.first_name }} {{ patient.last_name }}</h1>
+    <div id="chat-box">
+        {% for entry in conversation %}
+        <div class="message {{ entry.sender }}">
+            <div class="text-container">
+                <p>{{ entry.message }}</p>
+            </div>
+            <div class="time-container">
+                <span class="time">{{ entry.time }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>   
+
+    <div id="appointmentRequestsContainer">
+        <h3>Appointment Requests:</h3>
+        <ul id="appointmentRequestsList">
+            {% for request in appointment_requests %}
+            <li id="request-{{ forloop.counter }}">
+                {{ request.message }} 
+                <button onclick="confirmAppointment('request-{{ forloop.counter }}')">Yes</button>
+                <button onclick="cancelAppointment('request-{{ forloop.counter }}')">No</button>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+
+    <form method="POST" action="{% url 'chat' %}">
+        {% csrf_token %}
+        <input type="text" name="message" placeholder="Ask a question">
+        <button type="submit">Send</button>
+    </form>
+    <form action="{% url 'clear_chat' %}" method="post" style="margin-top: 10px;">
+        {% csrf_token %}
+        <button type="submit" style="background-color: #ff4444; color: white;">Clear Chat</button>
+    </form>
+</body>
+</html>
