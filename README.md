@@ -1,14 +1,14 @@
 
 # DTXPatientChat
 
-Welcome to the DTXPatientChat GitHub repository. This guide will walk you through setting up the project locally.
+Welcome to the DTXPatientChat GitHub repository. This guide will walk you through setting up the project locally and give a brief description of the app.
 
 ## Prerequisites
 
 Before you proceed, ensure that you have the following installed on your system:
 - [Git](https://git-scm.com/downloads)
 - [Anaconda](https://www.anaconda.com/products/individual) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-- [OpenAI API Key](https://beta.openai.com/signup/): Sign up at OpenAI and obtain your API key. Once you have the key, find the `.env` file in the `healthbot` directory and add the following line to it:
+- [OpenAI API Key](https://beta.openai.com/signup/): Sign up at OpenAI and obtain your API key. Once you have the key, find the `.env` file in the `patientbot` directory and add the following line to it:
   
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
