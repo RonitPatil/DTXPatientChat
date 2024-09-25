@@ -46,7 +46,13 @@ conda activate dtx_env
 pip install -r requirements.txt
 ```
 
-### 5. Run the Development server
+### 5. Run Migrations
+
+```bash
+python manage.py migrate
+```
+
+### 6. Run the Development server
 
 ```bash
 python manage.py runserver
